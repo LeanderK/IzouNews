@@ -1,5 +1,11 @@
 package leanderk.izou.news.RSS;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 /*
  * Represents one RSS message
  */
@@ -22,6 +28,10 @@ public class FeedMessage {
     }
 
     public String getDescription() {
+        if(description.contains("</p>")) {
+            Document doc = Jsoup.parseBodyFragment(description);
+            return doc.body().text();
+        }
         return description;
     }
 
@@ -61,10 +71,9 @@ public class FeedMessage {
         this.feed = feed;
     }
 
-    public String getPubDate() {
-        return pubDate;
+    public LocalDate getPubDate() {
+        return LocalDate.parse(pubDate, DateTimeFormatter.RFC_1123_DATE_TIME);
     }
-
     public void setPubDate(String pubDate) {
         this.pubDate = pubDate;
     }

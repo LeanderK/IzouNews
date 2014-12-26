@@ -31,8 +31,6 @@ public class NewsActivator extends Activator {
     @Override
     public void activatorStarts() throws InterruptedException {
         while (true) {
-            //sleep for 5 min
-            Thread.sleep(300000);
             if(rssManager.hasNewEntries()) {
                 Optional<Identification> id = IdentificationManager.getInstance().getIdentification(this);
                 if(!id.isPresent()) {
@@ -56,6 +54,8 @@ public class NewsActivator extends Activator {
                     }
                 } while (eventFired < 3);
             }
+            //sleep for 5 min
+            Thread.sleep(300000);
         }
     }
 

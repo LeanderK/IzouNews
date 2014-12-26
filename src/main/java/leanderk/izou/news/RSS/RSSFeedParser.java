@@ -1,5 +1,7 @@
 package leanderk.izou.news.RSS;
 
+import intellimate.izou.system.Context;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -11,45 +13,48 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class RSSFeedParser {
-    static final String TITLE = "title";
-    static final String DESCRIPTION = "description";
-    static final String CHANNEL = "channel";
-    static final String LANGUAGE = "language";
-    static final String COPYRIGHT = "copyright";
-    static final String LINK = "link";
-    static final String AUTHOR = "author";
-    static final String ITEM = "item";
-    static final String PUB_DATE = "pubDate";
-    static final String GUID = "guid";
+    private static final String TITLE = "title";
+    private static final String DESCRIPTION = "description";
+    private static final String CHANNEL = "channel";
+    private static final String LANGUAGE = "language";
+    private static final String COPYRIGHT = "copyright";
+    private static final String LINK = "link";
+    private static final String AUTHOR = "author";
+    private static final String ITEM = "item";
+    private static final String PUB_DATE = "pubDate";
+    private static final String GUID = "guid";
 
-    final URL url;
+    private URL url;
 
-    public RSSFeedParser(String feedUrl) {
+    private Context context;
+
+    public RSSFeedParser(String feedUrl, Context context) {
+        this.context = context;
         try {
             this.url = new URL(feedUrl);
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            context.logger.getLogger().error("Unable to open connection", e);
         }
     }
 
     public Feed readFeed() {
+        if(url == null) return null;
         Feed feed = null;
-        try {
-            boolean isFeedHeader = true;
-            // Set header values intial to the empty string
-            String description = "";
-            String title = "";
-            String link = "";
-            String language = "";
-            String copyright = "";
-            String author = "";
-            String pubdate = "";
-            String guid = "";
+        boolean isFeedHeader = true;
+        // Set header values intial to the empty string
+        String description = "";
+        String title = "";
+        String link = "";
+        String language = "";
+        String copyright = "";
+        String author = "";
+        String pubdate = "";
+        String guid = "";
 
-            // First create a new XMLInputFactory
-            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+        // First create a new XMLInputFactory
+        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+        try (InputStream in = url.openStream()) {
             // Setup a new eventReader
-            InputStream in = read();
             XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
             // read the XML document
             while (eventReader.hasNext()) {
@@ -107,8 +112,8 @@ public class RSSFeedParser {
                     }
                 }
             }
-        } catch (XMLStreamException e) {
-            throw new RuntimeException(e);
+        } catch (XMLStreamException | IOException e) {
+            context.logger.getLogger().error("Unable to read XMl", e);
         }
         return feed;
     }
@@ -121,13 +126,5 @@ public class RSSFeedParser {
             result = event.asCharacters().getData();
         }
         return result;
-    }
-
-    private InputStream read() {
-        try {
-            return url.openStream();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

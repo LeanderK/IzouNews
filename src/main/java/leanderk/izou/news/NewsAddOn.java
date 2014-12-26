@@ -30,7 +30,7 @@ public class NewsAddOn extends AddOn {
      */
     @Override
     public void prepare() {
-        rssManager = new RSSManager(getPropertiesContainer());
+        rssManager = new RSSManager(getPropertiesContainer(), getContext());
     }
 
     /**
@@ -42,7 +42,7 @@ public class NewsAddOn extends AddOn {
     public Activator[] registerActivator() {
         Activator[] activators = new Activator[1];
         activators[0] = new NewsActivator(getContext(), rssManager);
-        return new Activator[0];
+        return activators;
     }
 
     /**

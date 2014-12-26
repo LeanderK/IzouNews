@@ -1,9 +1,13 @@
 package leanderk.izou.news.RSS;
 
 import intellimate.izou.addon.PropertiesContainer;
+import intellimate.izou.system.Context;
 
-import java.time.LocalTime;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -13,16 +17,15 @@ import java.util.stream.Collectors;
  * @version 1.0
  */
 public class RSSManager {
-    PropertiesContainer propertiesContainer;
-    HashMap<String, List<String>> guids = new HashMap<>();
-    List<String> feeds = new ArrayList<>();
-    List<Feed> newMessages = new ArrayList<>();
-    LocalTime time = LocalTime.now();
+    private HashMap<String, List<String>> guids = new HashMap<>();
+    private List<String> feedsLinks = new ArrayList<>();
 
-    public RSSManager(PropertiesContainer propertiesContainer) {
-        this.propertiesContainer = propertiesContainer;
+    private Context context;
+
+    public RSSManager(PropertiesContainer propertiesContainer, Context context) {
+        this.context = context;
         Pattern pattern = Pattern.compile("rss_feed_\\d+");
-        feeds = propertiesContainer.getProperties().stringPropertyNames().stream()
+        feedsLinks = propertiesContainer.getProperties().stringPropertyNames().stream()
                     .filter(key -> pattern.matcher(key).matches())
                     .map(key -> propertiesContainer.getProperties().getProperty(key))
                     .collect(Collectors.toList());
@@ -30,63 +33,70 @@ public class RSSManager {
 
     /**
      * returns all the new Entries
-     * <p>
-     * This method will not query, if the last query was 5 minutes ago!
-     * </p>
-     * @return a List of Feeds containing the new FeedMessages (limited to 10)
+     * @return a List of Feeds containing the new FeedMessages
      */
     public List<Feed> getNewEntries() {
-        if(LocalTime.now().plusMinutes(5).isAfter(time)) {
-            return newMessages;
-        }
-        time = LocalTime.now();
-        List<RSSFeedParser> parsers =
-                feeds.stream()
-                    .map(RSSFeedParser::new)
+        List<RSSFeedParser> parsers = feedsLinks.stream()
+                    .map(feed -> new RSSFeedParser(feed, context))
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-        List<Feed> feeds =
-                parsers.stream()
-                        .filter(Objects::nonNull)
-                        .map(RSSFeedParser::readFeed)
-                        .collect(Collectors.toList());
+        List<Feed> feeds = parsers.stream()
+                    .map(RSSFeedParser::readFeed)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
         //initialize guids
         feeds.stream()
                 .filter(feed -> !guids.containsKey(feed.getLink()))
                 .forEach(feed -> guids.put(feed.getLink(), new ArrayList<>()));
 
         //returns all new Entries
-        newMessages = feeds.stream()
+        return feeds.stream()
                     .map(feed -> {
                         List<String> registeredGuids = guids.get(feed.getLink());
                         feed.entries = feed.getMessages().stream()
                                 .filter(message -> !registeredGuids.contains(message.getGuid()))
                                 .peek(message -> registeredGuids.add(message.getGuid()))
-                                .limit(10)
                                 .collect(Collectors.toList());
                         return feed;
                     })
                     .filter(feed -> !feed.getMessages().isEmpty())
                     .collect(Collectors.toList());
-        return newMessages;
     }
 
     /**
      * returns whether there are any new FeedMessages waiting for you!
-     * <p>
-     * This method will only query, if the last query is over 5 minutes ago.
-     * </p>
      * @return true if there are new FeedMessages, false if not
      */
     public boolean hasNewEntries() {
-        return getNewEntries().isEmpty();
+        return !getNewEntries().isEmpty();
     }
 
     /**
-     * returns a list of feeds containing only todays Message (limited to 10 each)
-     * @return
+     * a list of feedsLinks containing only todays Message
+     * @return a list of feedsLinks containg only todays messages
      */
     public List<Feed> getTodaysMessages() {
+        List<RSSFeedParser> parsers = feedsLinks.stream()
+                .map(feed -> new RSSFeedParser(feed, context))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
+        List<Feed> feeds = parsers.stream()
+                .map(RSSFeedParser::readFeed)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        LocalDate now = LocalDate.now();
+
+        return feeds.stream()
+                .map(feed -> {
+                    feed.entries = feed.getMessages().stream()
+                            .filter(message -> message.getPubDate().isEqual(now))
+                            .collect(Collectors.toList());
+                    return feed;
+                })
+                .filter(feed -> !feed.getMessages().isEmpty())
+                .collect(Collectors.toList());
     }
 }
