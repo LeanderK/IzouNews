@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RSSFeedParser {
     private static final String TITLE = "title";
@@ -25,10 +27,16 @@ public class RSSFeedParser {
     private static final String GUID = "guid";
 
     private URL url;
+    private int id;
+    private String name;
+    private RSSManager rssManager;
 
     private Context context;
 
-    public RSSFeedParser(String feedUrl, Context context) {
+    public RSSFeedParser(String feedUrl, int id, String name, RSSManager rssManager, Context context) {
+        this.id = id;
+        this.name = name;
+        this.rssManager = rssManager;
         this.context = context;
         try {
             this.url = new URL(feedUrl);
@@ -40,6 +48,7 @@ public class RSSFeedParser {
     public Feed readFeed() {
         if(url == null) return null;
         Feed feed = null;
+        List<FeedMessage> feedMessages = new ArrayList<>();
         boolean isFeedHeader = true;
         // Set header values intial to the empty string
         String description = "";
@@ -66,8 +75,8 @@ public class RSSFeedParser {
                         case ITEM:
                             if (isFeedHeader) {
                                 isFeedHeader = false;
-                                feed = new Feed(title, link, description, language,
-                                        copyright, pubdate);
+                                feed = new Feed(rssManager, title, name, link, description, language,
+                                        copyright, pubdate, id);
                             }
                             event = eventReader.nextEvent();
                             break;
@@ -106,7 +115,7 @@ public class RSSFeedParser {
                         message.setTitle(title);
                         message.setPubDate(pubdate);
                         message.setFeed(feed);
-                        feed.getMessages().add(message);
+                        feedMessages.add(message);
                         event = eventReader.nextEvent();
                         continue;
                     }
@@ -115,6 +124,7 @@ public class RSSFeedParser {
         } catch (XMLStreamException | IOException e) {
             context.logger.getLogger().error("Unable to read XMl", e);
         }
+        feed.setFeedMessages(feedMessages);
         return feed;
     }
 

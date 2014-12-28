@@ -1,3 +1,24 @@
 #to add an RSS-Feed simply add 2 properties:
-#rss_feed_<an digit> = <link to the rss-feed>
-#the digits need to be unique!
+#rss_feed_<id(number)> = <link to the rss-feed>
+#and:
+#rss_feed_name_<id> = <title>
+#the id need to be unique!
+#you can specify how many messages are read with the syntax: rss_message_limit_<digit>, where digit is the same digit 
+#used to specify the link (unused the limit is 10)
+
+
+
+
+
+
+
+
+
+
+
+
+
+#the messages for tts
+de_s_normalIntro = Die Nachrichten für heute.
+de_s_newNewsIntro = Neue Nachrichten von $name.
+de_s_feedIntro = Die Meldungen von $name.

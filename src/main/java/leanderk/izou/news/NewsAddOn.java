@@ -7,14 +7,17 @@ import intellimate.izou.events.EventsController;
 import intellimate.izou.output.OutputExtension;
 import intellimate.izou.output.OutputPlugin;
 import leanderk.izou.news.RSS.RSSManager;
+import ro.fortsoft.pf4j.Extension;
 
 /**
  * @author LeanderK
  * @version 1.0
  */
+@Extension
 public class NewsAddOn extends AddOn {
     public static final String ID = NewsAddOn.class.getCanonicalName();
     public static final String EVENT_NEW_NEWS = ID + ".NewNews";
+    public static final String EVENT_NEWS = ID + ".News";
 
     private RSSManager rssManager;
 
@@ -52,7 +55,9 @@ public class NewsAddOn extends AddOn {
      */
     @Override
     public ContentGenerator[] registerContentGenerator() {
-        return new ContentGenerator[0];
+        ContentGenerator[] contentGenerators = new ContentGenerator[1];
+        contentGenerators[0] = new NewsContentGenerator(getContext(), rssManager);
+        return contentGenerators;
     }
 
     /**
@@ -82,6 +87,8 @@ public class NewsAddOn extends AddOn {
      */
     @Override
     public OutputExtension[] registerOutputExtension() {
-        return new OutputExtension[0];
+        OutputExtension[] outputExtensions = new OutputExtension[1];
+        outputExtensions[0] = new NewsTTSOutputExtension(getPropertiesContainer(), getContext());
+        return outputExtensions;
     }
 }
