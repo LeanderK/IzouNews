@@ -22,3 +22,4 @@
 de_s_normalIntro = Die Nachrichten für heute.
 de_s_newNewsIntro = Neue Nachrichten von $name.
 de_s_feedIntro = Die Meldungen von $name.
+de_s_closing = Das waren die Nachrichten.

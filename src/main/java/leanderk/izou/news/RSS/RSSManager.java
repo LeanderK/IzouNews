@@ -24,13 +24,7 @@ public class RSSManager {
         this.propertiesContainer = propertiesContainer;
 
         Pattern pattern = Pattern.compile("rss_feed_\\d+");
-        feedsLinks = propertiesContainer.getProperties().stringPropertyNames().stream()
-                .filter(key -> pattern.matcher(key).matches())
-                .collect(Collectors.toMap(
-                            key -> propertiesContainer.getProperties().getProperty(key),
-                            key -> Integer.valueOf(key.replace("rss_feed_", ""))));
-
-        feedsLinks = new LinkedHashMap<>(feedsLinks);
+        loadProperties();
     }
 
     public List<Feed> parseFeeds() {
@@ -57,5 +51,19 @@ public class RSSManager {
     public boolean hasNewEntries() {
         return parseFeeds().stream()
                 .anyMatch(Feed::hasNewMessages);
+    }
+
+    /**
+     * loads the feeds from the properties file
+     */
+    public void loadProperties() {
+        Pattern pattern = Pattern.compile("rss_feed_\\d+");
+        feedsLinks = propertiesContainer.getProperties().stringPropertyNames().stream()
+                .filter(key -> pattern.matcher(key).matches())
+                .collect(Collectors.toMap(
+                        key -> propertiesContainer.getProperties().getProperty(key),
+                        key -> Integer.valueOf(key.replace("rss_feed_", ""))));
+
+        feedsLinks = new LinkedHashMap<>(feedsLinks);
     }
 }

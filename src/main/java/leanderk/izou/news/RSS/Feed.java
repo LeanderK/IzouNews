@@ -99,7 +99,11 @@ public class Feed {
         if(!rssManager.guids.containsKey(getLink()))
             rssManager.guids.put(getLink(), new ArrayList<>());
         List<String> registeredGuids = rssManager.guids.get(getLink());
-
+        if (registeredGuids.size() > 200) {
+            for (int i = 200; i < registeredGuids.size(); i++) {
+                registeredGuids.remove(200);
+            }
+        }
         return entries.stream()
                 .anyMatch(message -> !registeredGuids.contains(message.getGuid()));
     }

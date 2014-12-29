@@ -24,6 +24,7 @@ public class NewsTTSOutputExtension extends TTSOutputExtension{
     public static final String TTS_NORMAL_INTRO = "normalIntro";
     public static final String TTS_NEW_NEWS_INTRO = "newNewsIntro";
     public static final String TTS_Feed_Intro = "feedIntro";
+    public static final String TTS_CLOSING = "closing";
     private PropertiesContainer propertiesContainer;
     /**
      * creates a new outputExtension with a new id
@@ -74,16 +75,24 @@ public class NewsTTSOutputExtension extends TTSOutputExtension{
             words.append(" ");
             constructMessages(words, feed, feed.getNewMessages(), getMessagesLimit(feed, propertiesContainer));
         }
+        if (words.length() > 200) {
+            words.append(" ");
+            words.append(getWords(TTS_CLOSING, null));
+        }
+
     }
 
     private void constructTodaysNews(StringBuilder words, PropertiesContainer propertiesContainer, List<Feed> feeds) {
         words.append(getWords(TTS_NORMAL_INTRO, null));
         words.append(" ");
-        feeds.forEach(feed -> {
+        for (Feed feed : feeds) {
             HashMap<String, String> data = new HashMap<>();
             data.put("name", feed.getName());
             words.append(getWords(TTS_Feed_Intro, data));
-            constructMessages(words, feed, feed.getTodaysMessages(), getMessagesLimit(feed, propertiesContainer));});
+            constructMessages(words, feed, feed.getTodaysMessages(), getMessagesLimit(feed, propertiesContainer));
+        }
+        words.append(" ");
+        words.append(getWords(TTS_CLOSING, null));
     }
 
     private void constructMessages(StringBuilder words, Feed feed, List<FeedMessage> messages, int messagesLimit) {

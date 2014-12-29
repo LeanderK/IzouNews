@@ -6,6 +6,7 @@ import intellimate.izou.events.LocalEventManager;
 import intellimate.izou.system.Context;
 import intellimate.izou.system.Identification;
 import intellimate.izou.system.IdentificationManager;
+import leanderk.izou.news.RSS.Feed;
 import leanderk.izou.news.RSS.RSSManager;
 
 import java.util.Optional;
@@ -30,6 +31,8 @@ public class NewsActivator extends Activator {
      */
     @Override
     public void activatorStarts() throws InterruptedException {
+        //initialization
+        rssManager.parseFeeds().forEach(Feed::getMessages);
         while (true) {
             if(rssManager.hasNewEntries()) {
                 Optional<Identification> id = IdentificationManager.getInstance().getIdentification(this);
