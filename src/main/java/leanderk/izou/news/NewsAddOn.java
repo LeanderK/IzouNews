@@ -102,6 +102,7 @@ public class NewsAddOn extends AddOn {
     @Override
     public void reloadFiles() throws IOException {
         super.reloadFiles();
-        rssManager.loadProperties();
+        if (rssManager != null)
+            rssManager.loadProperties();
     }
 }

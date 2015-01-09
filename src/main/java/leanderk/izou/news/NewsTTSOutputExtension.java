@@ -75,7 +75,7 @@ public class NewsTTSOutputExtension extends TTSOutputExtension{
             words.append(" ");
             constructMessages(words, feed, feed.getNewMessages(), getMessagesLimit(feed, propertiesContainer));
         }
-        if (words.length() > 200) {
+        if (words.length() > 300) {
             words.append(" ");
             words.append(getWords(TTS_CLOSING, null));
         }

@@ -2,14 +2,11 @@ package leanderk.izou.news;
 
 import intellimate.izou.activator.Activator;
 import intellimate.izou.events.Event;
-import intellimate.izou.events.LocalEventManager;
+import intellimate.izou.events.MultipleEventsException;
 import intellimate.izou.system.Context;
-import intellimate.izou.system.Identification;
 import intellimate.izou.system.IdentificationManager;
 import leanderk.izou.news.RSS.Feed;
 import leanderk.izou.news.RSS.RSSManager;
-
-import java.util.Optional;
 
 /**
  * @author LeanderK
@@ -35,6 +32,7 @@ public class NewsActivator extends Activator {
         rssManager.parseFeeds().forEach(Feed::getMessages);
         while (true) {
             if(rssManager.hasNewEntries()) {
+                /*
                 Optional<Identification> id = IdentificationManager.getInstance().getIdentification(this);
                 if(!id.isPresent()) {
                     getContext().logger.getLogger().error("Unable to obtain ID");
@@ -56,6 +54,20 @@ public class NewsActivator extends Activator {
                         eventFired++;
                     }
                 } while (eventFired < 3);
+                */
+                try {
+
+                    IdentificationManager.getInstance().getIdentification(this)
+                            .flatMap(id -> Event.createEvent(Event.NOTIFICATION, id))
+                            .orElseThrow(() -> new IllegalStateException("Unable to create Event"))
+                            .addDescriptor(NewsAddOn.EVENT_NEW_NEWS)
+                            .tryFire(getCaller(), (event, counter) -> counter <= 3);
+
+                } catch (IllegalStateException e) {
+                    getContext().logger.getLogger().error("Unable to create Event");
+                } catch (MultipleEventsException e) {
+                    getContext().logger.getLogger().error("failed to fire Event", e);
+                }
             }
             //sleep for 5 min
             Thread.sleep(300000);

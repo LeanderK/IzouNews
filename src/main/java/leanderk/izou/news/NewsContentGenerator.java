@@ -4,7 +4,6 @@ import intellimate.izou.contentgenerator.ContentGenerator;
 import intellimate.izou.events.Event;
 import intellimate.izou.resource.Resource;
 import intellimate.izou.system.Context;
-import intellimate.izou.system.Identification;
 import intellimate.izou.system.IdentificationManager;
 import leanderk.izou.news.RSS.Feed;
 import leanderk.izou.news.RSS.RSSManager;
@@ -36,10 +35,10 @@ public class NewsContentGenerator extends ContentGenerator {
      */
     @Override
     public List<Resource> announceResources() {
-        Resource resource = new Resource(RESOURCE_ID);
-        Optional<Identification> optID = IdentificationManager.getInstance().getIdentification(this);
-        optID.ifPresent(resource::setProvider);
-        return Arrays.asList(resource);
+        return IdentificationManager.getInstance().getIdentification(this)
+                .map(id -> new Resource<List<Feed>>(RESOURCE_ID, id))
+                .orElse(new Resource<List<Feed>>(RESOURCE_ID))
+                .map(Arrays::asList);
     }
 
     /**
@@ -65,10 +64,10 @@ public class NewsContentGenerator extends ContentGenerator {
      */
     @Override
     public List<Resource> provideResource(List<Resource> resources, Optional<Event> event) {
-        Resource<List<Feed>> resource = new Resource<>(RESOURCE_ID);
-        Optional<Identification> optID = IdentificationManager.getInstance().getIdentification(this);
-        optID.ifPresent(resource::setProvider);
-        resource.setResource(rssManager.parseFeeds());
-        return Arrays.asList(resource);
+        return IdentificationManager.getInstance().getIdentification(this)
+                .map(id -> new Resource<List<Feed>>(RESOURCE_ID, id))
+                .orElse(new Resource<List<Feed>>(RESOURCE_ID))
+                .setResource(rssManager.parseFeeds())
+                .map(Arrays::asList);
     }
 }
