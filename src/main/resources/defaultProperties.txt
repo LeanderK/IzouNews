@@ -25,4 +25,5 @@ de_s_newNewsIntro = Neue Nachrichten von $name.
 en_s_newNewsIntro = breaking news from $name.
 de_s_feedIntro = Die Meldungen von $name.
 en_s_feedIntro = The news from $name.
-de_s_closing = That was the news.
+de_s_closing = Das waren die Nachrichten.
+en_s_closing = This was the news.
