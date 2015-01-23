@@ -2,7 +2,6 @@ package leanderk.izou.news;
 
 import intellimate.izou.activator.Activator;
 import intellimate.izou.events.Event;
-import intellimate.izou.events.MultipleEventsException;
 import intellimate.izou.system.Context;
 import intellimate.izou.system.IdentificationManager;
 import leanderk.izou.news.RSS.Feed;
@@ -32,41 +31,15 @@ public class NewsActivator extends Activator {
         rssManager.parseFeeds().forEach(Feed::getMessages);
         while (true) {
             if(rssManager.hasNewEntries()) {
-                /*
-                Optional<Identification> id = IdentificationManager.getInstance().getIdentification(this);
-                if(!id.isPresent()) {
-                    getContext().logger.getLogger().error("Unable to obtain ID");
-                    continue;
-                }
-                Optional<Event> event = Event.createEvent(Event.NOTIFICATION, id.get());
-                if(!event.isPresent()) {
-                    getContext().logger.getLogger().error("Unable to create Event");
-                    continue;
-                }
-                event.get().addDescriptor(NewsAddOn.EVENT_NEW_NEWS);
-                int eventFired = 0;
-                do {
-                    try {
-                        fireEvent(event.get());
-                        eventFired = 3;
-                    } catch (LocalEventManager.MultipleEventsException e) {
-                        Thread.sleep(100);
-                        eventFired++;
-                    }
-                } while (eventFired < 3);
-                */
                 try {
-
                     IdentificationManager.getInstance().getIdentification(this)
                             .flatMap(id -> Event.createEvent(Event.NOTIFICATION, id))
                             .orElseThrow(() -> new IllegalStateException("Unable to create Event"))
                             .addDescriptor(NewsAddOn.EVENT_NEW_NEWS)
-                            .tryFire(getCaller(), (event, counter) -> counter <= 3);
-
+                            .fire(getCaller(), (event, counter) -> counter <= 3,
+                                    event -> getContext().logger.getLogger().error("failed to fire Event"));
                 } catch (IllegalStateException e) {
                     getContext().logger.getLogger().error("Unable to create Event");
-                } catch (MultipleEventsException e) {
-                    getContext().logger.getLogger().error("failed to fire Event", e);
                 }
             }
             //sleep for 5 min

@@ -1,9 +1,12 @@
 package leanderk.izou.news.RSS;
 
-import intellimate.izou.addon.PropertiesContainer;
+import intellimate.izou.properties.PropertiesContainer;
 import intellimate.izou.system.Context;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -19,9 +22,10 @@ public class RSSManager {
     private PropertiesContainer propertiesContainer;
     private Context context;
 
-    public RSSManager(PropertiesContainer propertiesContainer, Context context) {
+    public RSSManager(Context context) {
         this.context = context;
-        this.propertiesContainer = propertiesContainer;
+        this.propertiesContainer = context.properties.getPropertiesContainer();
+        context.files.register(context.properties.getPropertiesManger(), this::loadProperties);
 
         Pattern pattern = Pattern.compile("rss_feed_\\d+");
         loadProperties();

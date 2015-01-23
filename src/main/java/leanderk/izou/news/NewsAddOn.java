@@ -9,8 +9,6 @@ import intellimate.izou.output.OutputPlugin;
 import leanderk.izou.news.RSS.RSSManager;
 import ro.fortsoft.pf4j.Extension;
 
-import java.io.IOException;
-
 /**
  * @author LeanderK
  * @version 1.0
@@ -35,7 +33,7 @@ public class NewsAddOn extends AddOn {
      */
     @Override
     public void prepare() {
-        rssManager = new RSSManager(getPropertiesContainer(), getContext());
+        rssManager = new RSSManager(getContext());
     }
 
     /**
@@ -90,19 +88,7 @@ public class NewsAddOn extends AddOn {
     @Override
     public OutputExtension[] registerOutputExtension() {
         OutputExtension[] outputExtensions = new OutputExtension[1];
-        outputExtensions[0] = new NewsTTSOutputExtension(getPropertiesContainer(), getContext());
+        outputExtensions[0] = new NewsTTSOutputExtension(getContext());
         return outputExtensions;
-    }
-
-    /**
-     * reloads the propertiesFile into the propertiesContainer
-     *
-     * @throws java.io.IOException thrown by inputStream
-     */
-    @Override
-    public void reloadFiles() throws IOException {
-        super.reloadFiles();
-        if (rssManager != null)
-            rssManager.loadProperties();
     }
 }

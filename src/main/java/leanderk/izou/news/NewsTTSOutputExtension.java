@@ -1,7 +1,7 @@
 package leanderk.izou.news;
 
-import intellimate.izou.addon.PropertiesContainer;
 import intellimate.izou.events.Event;
+import intellimate.izou.properties.PropertiesContainer;
 import intellimate.izou.resource.Resource;
 import intellimate.izou.system.Context;
 import leanderk.izou.news.RSS.Feed;
@@ -29,12 +29,11 @@ public class NewsTTSOutputExtension extends TTSOutputExtension{
     /**
      * creates a new outputExtension with a new id
      *
-     * @param propertiesContainer the PropertiesContainer used for generating Sentences
      * @param context the context
      */
-    public NewsTTSOutputExtension(PropertiesContainer propertiesContainer, Context context) {
-        super(ID, propertiesContainer, context);
-        this.propertiesContainer = propertiesContainer;
+    public NewsTTSOutputExtension(Context context) {
+        super(ID, context);
+        this.propertiesContainer = context.properties.getPropertiesContainer();
         setPluginId(TTSOutputPlugin.ID);
         addResourceIdToWishList(NewsContentGenerator.RESOURCE_ID);
     }

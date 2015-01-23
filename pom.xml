@@ -7,13 +7,13 @@
     <groupId>leanderk.izou.news</groupId>
     <artifactId>newsaddon</artifactId>
     <packaging>jar</packaging>
-    <version>0.9-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <name>Leander Kurscheidt</name>
 
     <properties>
         <plugin.id>leanderk.izou.news</plugin.id>
         <plugin.class>leanderk.izou.news.ZipFileManager</plugin.class>
-        <plugin.version>0.8</plugin.version>
+        <plugin.version>1.0</plugin.version>
         <plugin.provider>Leander Kurscheidt</plugin.provider>
         <plugin.dependencies>leanderk.izou.tts</plugin.dependencies>
         <repo.name>IzouNews</repo.name>
@@ -26,12 +26,12 @@
         <dependency>
             <groupId>intellimate.izou</groupId>
             <artifactId>Izou</artifactId>
-            <version>0.9.9.9-SNAPSHOT</version>
+            <version>0.9.9.9.8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>leanderk.izou.tts</groupId>
             <artifactId>tts</artifactId>
-            <version>0.9-SNAPSHOT</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
