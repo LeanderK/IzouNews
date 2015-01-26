@@ -120,17 +120,18 @@ public class Feed {
 
         LocalDate now = LocalDate.now();
 
-        List<FeedMessage> today = getMessages().stream()
+        List<FeedMessage> messages = getMessages().stream()
                 .filter(message -> message.getPubDate().isEqual(now))
                 .collect(Collectors.toList());
 
-        if (today.size() < 3) {
+        if (messages.size() < 3) {
             LocalDate yesterday = now.minusDays(1);
-            today.addAll(getTodaysMessages().stream()
+            messages.addAll(getTodaysMessages().stream()
                     .filter(message -> message.getPubDate().isEqual(yesterday))
                     .filter(message -> message.getPubDateTime().getHour() >= 20)
                     .collect(Collectors.toList()));
         }
+        return messages;
     }
 
     public String getTitle() {
