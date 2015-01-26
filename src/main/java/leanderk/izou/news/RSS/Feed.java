@@ -110,6 +110,9 @@ public class Feed {
 
     /**
      * a list of FeedMessages containing only todays Messages
+     * <p>
+     * If there are fewer than 3 Messages, it will also add the Message from 20:00 to midnight the day before.
+     * </p>
      * @return a list of FeedMessages containg only todays messages
      */
     public List<FeedMessage> getTodaysMessages() {
@@ -117,9 +120,17 @@ public class Feed {
 
         LocalDate now = LocalDate.now();
 
-        return getMessages().stream()
+        List<FeedMessage> today = getMessages().stream()
                 .filter(message -> message.getPubDate().isEqual(now))
                 .collect(Collectors.toList());
+
+        if (today.size() < 3) {
+            LocalDate yesterday = now.minusDays(1);
+            today.addAll(getTodaysMessages().stream()
+                    .filter(message -> message.getPubDate().isEqual(yesterday))
+                    .filter(message -> message.getPubDateTime().getHour() >= 20)
+                    .collect(Collectors.toList()));
+        }
     }
 
     public String getTitle() {

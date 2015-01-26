@@ -4,6 +4,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /*
@@ -74,6 +75,11 @@ public class FeedMessage {
     public LocalDate getPubDate() {
         return LocalDate.parse(pubDate, DateTimeFormatter.RFC_1123_DATE_TIME);
     }
+
+    public LocalDateTime getPubDateTime() {
+        return LocalDateTime.parse(pubDate, DateTimeFormatter.RFC_1123_DATE_TIME);
+    }
+
     public void setPubDate(String pubDate) {
         this.pubDate = pubDate;
     }
