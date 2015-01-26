@@ -10,6 +10,7 @@ import leanderk.izou.tts.outputextension.TTSData;
 import leanderk.izou.tts.outputextension.TTSOutputExtension;
 import leanderk.izou.tts.outputplugin.TTSOutputPlugin;
 
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,7 +55,12 @@ public class NewsTTSOutputExtension extends TTSOutputExtension{
         //String locale = resource.getResource().get(0).getLocale().getLanguage();
         StringBuilder words = new StringBuilder();
         if (event.getDescriptors().contains(Event.FULL_WELCOME_EVENT)) {
-            constructTodaysNews(words, propertiesContainer, resource.getResource());
+            if (LocalTime.now().isBefore(LocalTime.of(15, 0))
+                    || resource.getResource().stream().anyMatch(feed -> feed.getNewMessages().isEmpty())) {
+                constructTodaysNews(words, propertiesContainer, resource.getResource());
+            } else {
+                constructNewNews(words, propertiesContainer, resource.getResource());
+            }
         } else if (event.getDescriptors().contains(Event.MAJOR_WELCOME_EVENT)) {
             constructNewNews(words, propertiesContainer, resource.getResource());
         } else if (event.getDescriptors().contains(NewsAddOn.EVENT_NEW_NEWS)) {
