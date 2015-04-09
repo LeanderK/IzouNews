@@ -1,6 +1,6 @@
 package leanderk.izou.news.RSS;
 
-import intellimate.izou.system.Context;
+import org.intellimate.izou.sdk.Context;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -41,7 +41,7 @@ public class RSSFeedParser {
         try {
             this.url = new URL(feedUrl);
         } catch (MalformedURLException e) {
-            context.logger.getLogger().error("Unable to open connection", e);
+            context.getLogger().error("Unable to open connection", e);
         }
     }
 
@@ -122,7 +122,7 @@ public class RSSFeedParser {
                 }
             }
         } catch (XMLStreamException | IOException e) {
-            context.logger.getLogger().error("Unable to read XMl", e);
+            context.getLogger().error("Unable to read XMl", e);
         }
         feed.setFeedMessages(feedMessages);
         return feed;

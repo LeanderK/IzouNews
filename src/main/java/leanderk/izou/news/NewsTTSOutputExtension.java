@@ -1,14 +1,14 @@
 package leanderk.izou.news;
 
-import intellimate.izou.events.Event;
-import intellimate.izou.properties.PropertiesContainer;
-import intellimate.izou.resource.Resource;
-import intellimate.izou.system.Context;
-import leanderk.izou.news.RSS.Feed;
-import leanderk.izou.news.RSS.FeedMessage;
+import leanderk.izou.news.RSS.*;
 import leanderk.izou.tts.outputextension.TTSData;
 import leanderk.izou.tts.outputextension.TTSOutputExtension;
 import leanderk.izou.tts.outputplugin.TTSOutputPlugin;
+import org.intellimate.izou.events.EventModel;
+import org.intellimate.izou.resource.ResourceModel;
+import org.intellimate.izou.sdk.Context;
+import org.intellimate.izou.sdk.events.CommonEvents;
+import org.intellimate.izou.sdk.properties.PropertiesAssistant;
 
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -20,13 +20,12 @@ import java.util.stream.Stream;
  * @author LeanderK
  * @version 1.0
  */
-public class NewsTTSOutputExtension extends TTSOutputExtension{
+public class NewsTTSOutputExtension extends TTSOutputExtension {
     public static final String ID = NewsTTSOutputExtension.class.getCanonicalName();
     public static final String TTS_NORMAL_INTRO = "normalIntro";
     public static final String TTS_NEW_NEWS_INTRO = "newNewsIntro";
     public static final String TTS_Feed_Intro = "feedIntro";
     public static final String TTS_CLOSING = "closing";
-    private PropertiesContainer propertiesContainer;
     /**
      * creates a new outputExtension with a new id
      *
@@ -34,10 +33,11 @@ public class NewsTTSOutputExtension extends TTSOutputExtension{
      */
     public NewsTTSOutputExtension(Context context) {
         super(ID, context);
-        this.propertiesContainer = context.properties.getPropertiesContainer();
         setPluginId(TTSOutputPlugin.ID);
         addResourceIdToWishList(NewsContentGenerator.RESOURCE_ID);
     }
+
+
 
     /**
      * override this class to generate the TTSData.
@@ -47,29 +47,31 @@ public class NewsTTSOutputExtension extends TTSOutputExtension{
      * @return an instance of TTSData, which will then be consumed by the TTSOutputPlugin
      */
     @Override
-    public TTSData generateSentence(Event event) {
-        List<Resource> resources = event.getListResourceContainer().provideResource(NewsContentGenerator.RESOURCE_ID);
-        Resource<List<Feed>> resource = resources.get(0);
+    public TTSData generateSentence(EventModel event) {
+        List<ResourceModel> resources = event.getListResourceContainer().provideResource(NewsContentGenerator.RESOURCE_ID);
+        ResourceModel<List<Feed>> resource = resources.get(0);
         if(resource.getResource().isEmpty())
             return null;
         //String locale = resource.getResource().get(0).getLocale().getLanguage();
+        CommonEvents commonEvents = CommonEvents.get(this);
         StringBuilder words = new StringBuilder();
-        if (event.getDescriptors().contains(Event.FULL_WELCOME_EVENT)) {
+        if (event.getDescriptors().contains(commonEvents.getResponse().fullResponseDescriptor()) ||
+                (event.getDescriptors().contains(NewsAddOn.EVENT_NEWS))) {
             if (LocalTime.now().isBefore(LocalTime.of(15, 0))
                     || resource.getResource().stream().anyMatch(feed -> feed.getNewMessages().isEmpty())) {
-                constructTodaysNews(words, propertiesContainer, resource.getResource());
+                constructTodaysNews(words, getContext().getPropertiesAssistant(), resource.getResource());
             } else {
-                constructNewNews(words, propertiesContainer, resource.getResource());
+                constructNewNews(words, getContext().getPropertiesAssistant(), resource.getResource());
             }
-        } else if (event.getDescriptors().contains(Event.MAJOR_WELCOME_EVENT)) {
-            constructNewNews(words, propertiesContainer, resource.getResource());
+        } else if (event.getDescriptors().contains(commonEvents.getResponse().majorResponseDescriptor())) {
+            constructNewNews(words, getContext().getPropertiesAssistant(), resource.getResource());
         } else if (event.getDescriptors().contains(NewsAddOn.EVENT_NEW_NEWS)) {
-            constructNewNews(words, propertiesContainer, resource.getResource());
+            constructNewNews(words, getContext().getPropertiesAssistant(), resource.getResource());
         }
         return TTSData.createTTSData(words.toString(), getLocale(), 30, ID);
     }
 
-    private void constructNewNews(StringBuilder words, PropertiesContainer propertiesContainer, List<Feed> feeds) {
+    private void constructNewNews(StringBuilder words, PropertiesAssistant propertiesContainer, List<Feed> feeds) {
         for (Feed feed : feeds) {
             List<FeedMessage> newMessages = feed.getNewMessages();
             if (newMessages.isEmpty())
@@ -87,7 +89,7 @@ public class NewsTTSOutputExtension extends TTSOutputExtension{
 
     }
 
-    private void constructTodaysNews(StringBuilder words, PropertiesContainer propertiesContainer, List<Feed> feeds) {
+    private void constructTodaysNews(StringBuilder words, PropertiesAssistant propertiesContainer, List<Feed> feeds) {
         words.append(getWords(TTS_NORMAL_INTRO, null));
         words.append(" ");
         for (Feed feed : feeds) {
@@ -114,14 +116,14 @@ public class NewsTTSOutputExtension extends TTSOutputExtension{
      * @param propertiesContainer the properties to search in
      * @return the limit of the messages read per feed
      */
-    private int getMessagesLimit(Feed feed, PropertiesContainer propertiesContainer) {
+    private int getMessagesLimit(Feed feed, PropertiesAssistant propertiesContainer) {
         String key = "rss_message_limit_" + feed.getId();
         String limit = propertiesContainer.getProperties().getProperty(key);
         if (limit != null) {
             try {
                 return Integer.valueOf(limit);
             } catch (NumberFormatException e) {
-                getContext().logger.getLogger().error("unable to parse message limit", e);
+                error("unable to parse message limit", e);
             }
         }
         return 10;

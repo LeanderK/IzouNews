@@ -1,7 +1,7 @@
-import intellimate.izou.addon.AddOn;
-import intellimate.izou.main.Main;
 import leanderk.izou.news.NewsAddOn;
 import leanderk.izou.tts.TTS;
+import org.intellimate.izou.addon.AddOnModel;
+import org.intellimate.izou.main.Main;
 
 import java.util.LinkedList;
 
@@ -10,7 +10,7 @@ import java.util.LinkedList;
  */
 public class Debug {
     public static void main(String[] args) {
-        LinkedList<AddOn> addOns = new LinkedList<>();
+        LinkedList<AddOnModel> addOns = new LinkedList<>();
         addOns.add(new NewsAddOn());
         addOns.add(new TTS());
         Main main = new Main(addOns, true);

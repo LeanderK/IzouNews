@@ -1,12 +1,12 @@
 package leanderk.izou.news;
 
-import intellimate.izou.activator.Activator;
-import intellimate.izou.addon.AddOn;
-import intellimate.izou.contentgenerator.ContentGenerator;
-import intellimate.izou.events.EventsController;
-import intellimate.izou.output.OutputExtension;
-import intellimate.izou.output.OutputPlugin;
 import leanderk.izou.news.RSS.RSSManager;
+import org.intellimate.izou.sdk.activator.Activator;
+import org.intellimate.izou.sdk.addon.AddOn;
+import org.intellimate.izou.sdk.contentgenerator.ContentGenerator;
+import org.intellimate.izou.sdk.events.EventsController;
+import org.intellimate.izou.sdk.output.OutputExtensionArgument;
+import org.intellimate.izou.sdk.output.OutputPlugin;
 import ro.fortsoft.pf4j.Extension;
 
 /**
@@ -86,8 +86,8 @@ public class NewsAddOn extends AddOn {
      * @return Array containing Instances of OutputExtensions
      */
     @Override
-    public OutputExtension[] registerOutputExtension() {
-        OutputExtension[] outputExtensions = new OutputExtension[1];
+    public OutputExtensionArgument[] registerOutputExtension() {
+        OutputExtensionArgument[] outputExtensions = new OutputExtensionArgument[1];
         outputExtensions[0] = new NewsTTSOutputExtension(getContext());
         return outputExtensions;
     }

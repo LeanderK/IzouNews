@@ -1,14 +1,15 @@
 package leanderk.izou.news;
 
-import intellimate.izou.contentgenerator.ContentGenerator;
-import intellimate.izou.events.Event;
-import intellimate.izou.resource.Resource;
-import intellimate.izou.system.Context;
-import intellimate.izou.system.IdentificationManager;
-import leanderk.izou.news.RSS.Feed;
 import leanderk.izou.news.RSS.RSSManager;
+import org.intellimate.izou.events.EventModel;
+import org.intellimate.izou.resource.ResourceModel;
+import org.intellimate.izou.sdk.Context;
+import org.intellimate.izou.sdk.contentgenerator.ContentGenerator;
+import org.intellimate.izou.sdk.contentgenerator.EventListener;
+import org.intellimate.izou.sdk.events.CommonEvents;
+import org.intellimate.izou.sdk.resource.Resource;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,46 +29,56 @@ public class NewsContentGenerator extends ContentGenerator {
     }
 
     /**
-     * this method is called to register what resources the object provides.
+     * this method is called when an object wants to get a Resource.
+     * <p>
+     * Don't use the Resources provided as arguments, they are just the requests.
+     * There is a timeout after 1 second.
+     * </p>
+     *
+     * @param list     a list of resources without data
+     * @param optional if an event caused the action, it gets passed. It can also be null.
+     * @return a list of resources with data
+     */
+    @Override
+    public List<? extends Resource> triggered(List<? extends ResourceModel> list, Optional<EventModel> optional) {
+        return optionalToList(createResource(RESOURCE_ID, rssManager.parseFeeds()));
+    }
+
+    /**
+     * this method returns a List of EventListener, which indicate for which Events the ContentGenerator should be
+     * triggered.
+     *
+     * @return a List of EventListeners
+     */
+    @Override
+    public List<? extends EventListener> getTriggeredEvents() {
+        List<? extends EventListener> eventListeners = new ArrayList<>();
+        CommonEvents commonEvents = CommonEvents.get(this);
+        commonEvents.getResponse().fullResponseListener().ifPresent(eventListeners::add);
+        commonEvents.getResponse().majorResponseListener().ifPresent(eventListeners::add);
+        EventListener.createEventListener(
+                NewsAddOn.EVENT_NEW_NEWS,
+                "adds new news to the Event",
+                "new_news",
+                this
+        ).ifPresent(eventListeners::add);
+        EventListener.createEventListener(
+                NewsAddOn.EVENT_NEWS,
+                "adds an overview of the news to the Event",
+                "news",
+                this
+        ).ifPresent(eventListeners::add);
+        return eventListeners;
+    }
+
+    /**
+     * This method is called to register what resources the object provides.
      * just pass a List of Resources without Data in it.
      *
      * @return a List containing the resources the object provides
      */
     @Override
-    public List<Resource> announceResources() {
-        return IdentificationManager.getInstance().getIdentification(this)
-                .map(id -> new Resource<List<Feed>>(RESOURCE_ID, id))
-                .orElse(new Resource<List<Feed>>(RESOURCE_ID))
-                .map(Arrays::asList);
-    }
-
-    /**
-     * this method is called to register for what Events it wants to provide Resources.
-     *
-     * @return a List containing ID's for the Events
-     */
-    @Override
-    public List<String> announceEvents() {
-        return Arrays.asList(Event.FULL_WELCOME_EVENT,
-                Event.MAJOR_WELCOME_EVENT,
-                NewsAddOn.EVENT_NEW_NEWS,
-                NewsAddOn.EVENT_NEWS);
-    }
-
-    /**
-     * this method is called when an object wants to get a Resource.
-     * it has as an argument resource instances without data, which just need to get populated.
-     *
-     * @param resources a list of resources without data
-     * @param event     if an event caused the action, it gets passed. It can also be null.
-     * @return a list of resources with data
-     */
-    @Override
-    public List<Resource> provideResource(List<Resource> resources, Optional<Event> event) {
-        return IdentificationManager.getInstance().getIdentification(this)
-                .map(id -> new Resource<List<Feed>>(RESOURCE_ID, id))
-                .orElse(new Resource<List<Feed>>(RESOURCE_ID))
-                .setResource(rssManager.parseFeeds())
-                .map(Arrays::asList);
+    public List<? extends Resource> getTriggeredResources() {
+        return optionalToList(createResource(RESOURCE_ID));
     }
 }

@@ -1,12 +1,12 @@
 package leanderk.izou.news.RSS;
 
-import intellimate.izou.properties.PropertiesContainer;
-import intellimate.izou.system.Context;
+import org.intellimate.izou.identification.Identification;
+import org.intellimate.izou.identification.IdentificationManager;
+import org.intellimate.izou.identification.IllegalIDException;
+import org.intellimate.izou.sdk.Context;
+import org.intellimate.izou.sdk.properties.PropertiesAssistant;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -19,13 +19,20 @@ public class RSSManager {
     HashMap<String, List<String>> guids = new HashMap<>();
     //the keys are the links, and the ID's the integers in the properties-file
     private Map<String, Integer> feedsLinks;
-    private PropertiesContainer propertiesContainer;
+    private PropertiesAssistant propertiesContainer;
     private Context context;
 
     public RSSManager(Context context) {
         this.context = context;
-        this.propertiesContainer = context.properties.getPropertiesContainer();
-        context.files.register(context.properties.getPropertiesManger(), this::loadProperties);
+        this.propertiesContainer = context.getPropertiesAssistant();
+        Optional<Identification> identification = IdentificationManager.getInstance()
+                .getIdentification(context.getAddOn());
+        if (identification.isPresent())
+            try {
+                context.getFiles().register(context.getPropertiesAssistant(),this::loadProperties, identification.get());
+            } catch (IllegalIDException e) {
+                context.getLogger().error(e);
+            }
 
         Pattern pattern = Pattern.compile("rss_feed_\\d+");
         loadProperties();
