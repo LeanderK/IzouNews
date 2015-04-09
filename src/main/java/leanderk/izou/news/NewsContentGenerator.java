@@ -52,7 +52,7 @@ public class NewsContentGenerator extends ContentGenerator {
      */
     @Override
     public List<? extends EventListener> getTriggeredEvents() {
-        List<? extends EventListener> eventListeners = new ArrayList<>();
+        List<EventListener> eventListeners = new ArrayList<>();
         CommonEvents commonEvents = CommonEvents.get(this);
         commonEvents.getResponse().fullResponseListener().ifPresent(eventListeners::add);
         commonEvents.getResponse().majorResponseListener().ifPresent(eventListeners::add);

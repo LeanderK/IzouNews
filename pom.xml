@@ -8,7 +8,7 @@
     <artifactId>newsaddon</artifactId>
     <packaging>jar</packaging>
     <version>2.0</version>
-    <name>Leander Kurscheidt</name>
+    <name>News Addon for Izou</name>
 
     <properties>
         <plugin.id>leanderk.izou.news</plugin.id>
