@@ -53,9 +53,8 @@ public class NewsTTSOutputExtension extends TTSOutputExtension {
         if(resource.getResource().isEmpty())
             return null;
         //String locale = resource.getResource().get(0).getLocale().getLanguage();
-        CommonEvents commonEvents = CommonEvents.get(this);
         StringBuilder words = new StringBuilder();
-        if (event.getDescriptors().contains(commonEvents.getResponse().fullResponseDescriptor()) ||
+        if (event.getDescriptors().contains(CommonEvents.Response.FULL_RESPONSE_DESCRIPTOR) ||
                 (event.getDescriptors().contains(NewsAddOn.EVENT_NEWS))) {
             if (LocalTime.now().isBefore(LocalTime.of(15, 0))
                     || resource.getResource().stream().anyMatch(feed -> feed.getNewMessages().isEmpty())) {
@@ -63,7 +62,7 @@ public class NewsTTSOutputExtension extends TTSOutputExtension {
             } else {
                 constructNewNews(words, getContext().getPropertiesAssistant(), resource.getResource());
             }
-        } else if (event.getDescriptors().contains(commonEvents.getResponse().majorResponseDescriptor())) {
+        } else if (event.getDescriptors().contains(CommonEvents.Response.MAJOR_RESPONSE_DESCRIPTOR)) {
             constructNewNews(words, getContext().getPropertiesAssistant(), resource.getResource());
         } else if (event.getDescriptors().contains(NewsAddOn.EVENT_NEW_NEWS)) {
             constructNewNews(words, getContext().getPropertiesAssistant(), resource.getResource());

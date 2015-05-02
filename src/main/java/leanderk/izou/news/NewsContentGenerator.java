@@ -53,9 +53,8 @@ public class NewsContentGenerator extends ContentGenerator {
     @Override
     public List<? extends EventListener> getTriggeredEvents() {
         List<EventListener> eventListeners = new ArrayList<>();
-        CommonEvents commonEvents = CommonEvents.get(this);
-        commonEvents.getResponse().fullResponseListener().ifPresent(eventListeners::add);
-        commonEvents.getResponse().majorResponseListener().ifPresent(eventListeners::add);
+        CommonEvents.Response.fullResponseListener(this).ifPresent(eventListeners::add);
+        CommonEvents.Response.majorResponseListener(this).ifPresent(eventListeners::add);
         EventListener.createEventListener(
                 NewsAddOn.EVENT_NEW_NEWS,
                 "adds new news to the Event",
